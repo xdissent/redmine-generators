@@ -1,0 +1,12 @@
+<%% if @<%= singular_table_name %>.valid? %>
+  hideModal();
+  if ($(".<%= plural_table_name %>.list").length) {
+    $("#<%%= dom_id @<%= singular_table_name %> %>").replaceWith("<%%= j render(@<%= singular_table_name %>) %>");
+    $("#<%%= dom_id @<%= singular_table_name %> %>").effect("highlight");
+  } else {
+    window.location.href = "<%%= url_for @<%= singular_table_name %> %>";
+  }
+<%% else %>
+  $("#errorExplanation").remove();
+  $("<%%= j error_messages_for("<%= singular_table_name %>") %>").prependTo("#edit_<%= singular_table_name %>_<%%= @<%= singular_table_name %>.id %>");
+<%% end %>

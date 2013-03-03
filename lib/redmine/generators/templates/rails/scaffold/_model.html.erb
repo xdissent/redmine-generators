@@ -1,0 +1,12 @@
+<tr id="<%%= dom_id <%= singular_table_name %> %>" class="<%%= cycle "odd", "even" %>">
+<% attributes.each do |attribute| -%>
+  <td><%%= <%= singular_table_name %>.<%= attribute.name %> %></td>
+<% end -%>
+  <td><%%= authoring <%= singular_table_name %>.created_at, <%= created_by %> %>.</td>
+  <td><%%= l(:label_updated_time, time_tag(<%= singular_table_name %>.updated_at)).html_safe %>.</td>
+  <td class="buttons">
+    <%%= link_to l(:button_show), <%= singular_table_name %><%= maybe_remote %> %>
+    <%%= link_to l(:button_edit), edit_<%= singular_table_name %>_path(<%= singular_table_name %>), <%= key_value :class, '"icon icon-edit"' %><%= maybe_remote %> %>
+    <%%= link_to l(:button_delete), <%= singular_table_name %>, <%= key_value :method, ":delete" %>, <%= key_value :data, "{ #{key_value :confirm, "l(:text_are_you_sure)"} }" %>, <%= key_value :class, '"icon icon-del"' %><%= maybe_remote %> %>
+  </td>
+</tr>

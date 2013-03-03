@@ -1,0 +1,17 @@
+<div class="contextual">
+  <%%= link_to l(:label_<%= singular_table_name %>_edit), edit_<%= singular_table_name %>_path(@<%= singular_table_name %>), <%= key_value :class, '"icon icon-edit"' %><%= maybe_remote %> %>
+</div>
+
+<h2><%%= link_to l(:label_<%= singular_table_name %>_plural), <%= index_helper %>_path %>
+  &#187; <%%= l(:label_<%= singular_table_name %>) %></h2>
+
+<div class="box">
+<% attributes.each do |attribute| -%>
+<p>
+  <b><%= attribute.human_name %>:</b>
+  <%%= @<%= singular_table_name %>.<%= attribute.name %> %>
+</p>
+<% end -%>
+</div>
+
+<%% html_title l(:label_<%= singular_table_name %>) -%>

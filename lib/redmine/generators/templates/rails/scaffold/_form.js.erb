@@ -1,0 +1,14 @@
+<%%= labelled_form_for(@<%= singular_table_name %><%= maybe_remote %>) do |f| %>
+  <%%= error_messages_for "<%= singular_table_name %>" %>
+
+  <div class="box tabular">
+<% attributes.each do |attribute| -%>
+    <p><%%= f.<%= attribute.field_type %> :<%= attribute.name %> %></p>
+<% end -%>
+  </div>
+
+  <p class="buttons">
+    <%%= f.submit %>
+    <%%= submit_tag l(:button_cancel), <%= key_value :onclick, '"hideModal(this);"' %>, <%= key_value :type, '"button"' %> %>
+  </p>
+<%% end %>

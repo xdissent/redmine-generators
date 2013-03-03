@@ -1,0 +1,19 @@
+<%% html = capture do %>
+  <h3 class="title"><%%= l(:label_<%= singular_table_name %>) %></h3>
+
+  <div class="box">
+<% attributes.each do |attribute| -%>
+    <p>
+      <b><%= attribute.human_name %>:</b>
+      <%%= @<%= singular_table_name %>.<%= attribute.name %> %>
+    </p>
+<% end -%>
+  </div>
+
+  <p class="buttons">
+    <%%= submit_tag l(:button_cancel), <%= key_value :onclick, '"hideModal(this);"' %>, <%= key_value :type, '"button"' %> %>
+  </p>
+<%% end %>
+
+$("#ajax-modal").html("<%%= j html %>").find(".box").css("z-index", "auto");
+showModal("ajax-modal", "600px");

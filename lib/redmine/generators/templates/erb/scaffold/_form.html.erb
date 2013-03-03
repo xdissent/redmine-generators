@@ -1,0 +1,13 @@
+<%%= labelled_form_for(@<%= singular_table_name %>) do |f| %>
+  <%%= error_messages_for "<%= singular_table_name %>" %>
+
+  <div class="box tabular">
+<% attributes.each do |attribute| -%>
+    <p><%%= f.<%= attribute.field_type %> :<%= attribute.name %> %></p>
+<% end -%>
+  </div>
+
+  <p class="buttons">
+    <%%= f.submit %>
+  </p>
+<%% end %>

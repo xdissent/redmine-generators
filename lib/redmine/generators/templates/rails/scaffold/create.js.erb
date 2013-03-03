@@ -1,0 +1,13 @@
+<%% if @<%= singular_table_name %>.valid? %>
+  hideModal();
+  if ($(".<%= plural_table_name %>.list").length) {
+    $(".nodata").hide();
+    $(".<%= plural_table_name %>").show();
+    $("<%%= j render(@<%= singular_table_name %>, formats: [:html]) %>").prependTo(".<%= plural_table_name %> tbody").effect("highlight");
+  } else {
+    window.location.href = "<%%= url_for @<%= singular_table_name %> %>";
+  }
+<%% else %>
+  $("#errorExplanation").remove();
+  $("<%%= j error_messages_for("<%= singular_table_name %>") %>").prependTo("#new_<%= singular_table_name %>");
+<%% end %>

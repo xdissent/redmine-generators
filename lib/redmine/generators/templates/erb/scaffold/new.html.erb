@@ -1,0 +1,6 @@
+<h2><%%= link_to l(:label_<%= singular_table_name %>_plural), <%= index_helper %>_path %>
+  &#187; <%%= l(:label_<%= singular_table_name %>_new) %></h2>
+
+<%%= render "form" %>
+
+<%% html_title l(:label_<%= singular_table_name %>_new) -%>

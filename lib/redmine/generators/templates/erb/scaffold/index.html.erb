@@ -1,0 +1,33 @@
+<div class="contextual">
+  <%%= link_to l(:label_<%= singular_table_name %>_new), new_<%= singular_table_name %>_path, <%= key_value :class, '"icon icon-add"' %><%= maybe_remote %> %>
+</div>
+
+<h2><%%= l(:label_<%= singular_table_name %>_plural) %></h2>
+
+<%% if @<%= plural_table_name %>.empty? %>
+  <p class="nodata"><%%= l(:label_no_data) %></p>
+<%% end %>
+
+<div class="autoscroll">
+  <table class="list <%= plural_table_name %>" style="<%%= "display: none;" if @<%= plural_table_name %>.empty? %>">
+    <thead>
+      <tr>
+<% attributes.each do |attribute| -%>
+        <%= sortable_header attribute.name %>
+<% end -%>
+        <%= sortable_header "created_at", :field_created_on, "desc" %>
+        <%= sortable_header "updated_at", :field_updated_on, "desc" %>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%%= render @<%= plural_table_name %> %>
+    </tbody>
+  </table>
+</div>
+<% if parent_options[:pagination] -%>
+
+<p class="pagination"><%%= pagination_links_full @<%= singular_table_name %>_pages %></p>
+<% end -%>
+
+<%% html_title l(:label_<%= singular_table_name %>_plural) -%>
