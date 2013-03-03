@@ -97,4 +97,16 @@ access to whichever roles you'd like at
 [http://localhost:3000/roles/permissions](http://localhost:3000/roles/permissions),
 create a project with the `:polls` module enabled, and start polling!
 
+
+## Available Generators
+
+* `redmine:plugin`
+* `redmine:project_menu`
+* `redmine:project_module`
+* `redmine:resource_route`
+* `redmine:scaffold`
+* `redmine:scaffold_controller`
+* `redmine:translation`
+
+
 This project rocks and uses MIT-LICENSE.
