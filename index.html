@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Redmine-generators by xdissent</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Redmine-generators</h1>
+        <p>Helpful generators for Redmine plugin authors.</p>
+
+        <p class="view"><a href="https://github.com/xdissent/redmine-generators">View the Project on GitHub <small>xdissent/redmine-generators</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/xdissent/redmine-generators/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/xdissent/redmine-generators/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/xdissent/redmine-generators">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p><a href="https://travis-ci.org/xdissent/redmine-generators"><img src="https://travis-ci.org/xdissent/redmine-generators.png?branch=master" alt="Build Status"></a>
+<a href="http://badge.fury.io/rb/redmine-generators"><img src="https://badge.fury.io/rb/redmine-generators.png" alt="Gem Version"></a></p>
+
+<h2>Crash Course</h2>
+
+<p>Recreate the <a href="http://www.redmine.org/projects/redmine/wiki/Plugin_Tutorial">Redmine plugin tutorial</a>
+using the <code>redmine:plugin</code> and <code>redmine:scaffold</code> generators:</p>
+
+<div class="highlight"><pre><span class="gp">$</span> git clone https://github.com/redmine/redmine.git; <span class="nb">cd </span>redmine
+<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">"development:\n  adapter: sqlite3\n  database: db/dev.db"</span> &gt; config/database.yml
+<span class="gp">$</span> <span class="nb">echo</span> <span class="s1">'gem "redmine-generators", group: :development'</span> &gt;&gt; Gemfile.local
+<span class="gp">$</span> bundle --without rmagick   <span class="c"># Or whatever</span>
+<span class="gp">$</span> rails g redmine:plugin polls
+<span class="gp">$</span> rails g redmine:scaffold polls poll question yes:integer no:integer
+<span class="gp">$</span> rake generate_secret_token db:migrate redmine:plugins:migrate
+<span class="gp">$</span> <span class="nv">REDMINE_LANG</span><span class="o">=</span>en rake redmine:load_default_data
+</pre></div>
+
+<p>Add a <code>vote</code> method to the <code>Poll</code> model in <code>plugins/redmine_polls/app/models/poll.rb</code>:</p>
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">vote</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+  <span class="n">increment</span><span class="p">(</span><span class="n">answer</span> <span class="o">==</span> <span class="s2">"yes"</span> <span class="p">?</span> <span class="ss">:yes</span> <span class="p">:</span> <span class="ss">:no</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>Create a <code>vote</code> action for the <code>PollsController</code> in <code>plugins/redmine_polls/app/controllers/polls_controller.rb</code>:</p>
+
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">vote</span>
+  <span class="vi">@poll</span><span class="o">.</span><span class="n">vote</span> <span class="n">params</span><span class="o">[</span><span class="ss">:answer</span><span class="o">]</span>
+  <span class="n">flash</span><span class="o">[</span><span class="ss">:notice</span><span class="o">]</span> <span class="o">=</span> <span class="s2">"Voted </span><span class="si">#{</span><span class="n">params</span><span class="o">[</span><span class="ss">:answer</span><span class="o">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="vi">@poll</span><span class="o">.</span><span class="n">save</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">request</span><span class="o">.</span><span class="n">xhr?</span>
+  <span class="n">respond_with</span><span class="p">(</span><span class="vi">@poll</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="nb">format</span><span class="o">|</span>
+    <span class="nb">format</span><span class="o">.</span><span class="n">js</span> <span class="p">{</span> <span class="n">render</span> <span class="n">action</span><span class="p">:</span> <span class="ss">:show</span> <span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>Create a member route in <code>plugins/redmine_polls/config/routes.rb</code> for the new
+<code>vote</code> action:</p>
+
+<div class="highlight"><pre><span class="n">scope</span> <span class="s2">"/projects/:project_id"</span> <span class="k">do</span>
+  <span class="n">resources</span> <span class="ss">:polls</span> <span class="k">do</span>
+    <span class="n">post</span> <span class="s2">"vote"</span><span class="p">,</span> <span class="n">on</span><span class="p">:</span> <span class="ss">:member</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+
+<p>Add the <code>vote</code> method to the <code>respond_to :js</code> and <code>before_filter :find_poll</code>
+statements:</p>
+
+<div class="highlight"><pre><span class="n">respond_to</span> <span class="ss">:js</span><span class="p">,</span> <span class="n">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:show</span><span class="p">,</span> <span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="ss">:destroy</span><span class="p">,</span> <span class="ss">:vote</span><span class="o">]</span>
+<span class="c1"># ...</span>
+<span class="n">before_filter</span> <span class="ss">:find_poll</span><span class="p">,</span> <span class="n">only</span><span class="p">:</span> <span class="o">[</span><span class="ss">:show</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="ss">:update</span><span class="p">,</span> <span class="ss">:destroy</span><span class="p">,</span> <span class="ss">:vote</span><span class="o">]</span>
+</pre></div>
+
+<p>Add voting links to <code>plugins/redmine_polls/app/views/polls/show.html.erb</code>:</p>
+
+<div class="highlight"><pre><span class="x">&lt;p&gt;</span>
+<span class="x">  &lt;b&gt;Vote:&lt;/b&gt;</span>
+<span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">"Yes"</span><span class="p">,</span> <span class="n">vote_poll_path</span><span class="p">(</span><span class="vi">@poll</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="s2">"yes"</span><span class="p">),</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:post</span> <span class="cp">%&gt;</span><span class="x"> |</span>
+<span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">"No"</span><span class="p">,</span> <span class="n">vote_poll_path</span><span class="p">(</span><span class="vi">@poll</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="s2">"no"</span><span class="p">),</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:post</span> <span class="cp">%&gt;</span><span class="x"></span>
+<span class="x">&lt;/p&gt;</span>
+</pre></div>
+
+<p>And basically the same for <code>plugins/redmine_polls/app/views/polls/show.js.erb</code> 
+but using <code>remote: true</code> for AJAX links:</p>
+
+<div class="highlight"><pre><span class="x">&lt;p&gt;</span>
+<span class="x">  &lt;b&gt;Vote:&lt;/b&gt;</span>
+<span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">"Yes"</span><span class="p">,</span> <span class="n">vote_poll_path</span><span class="p">(</span><span class="vi">@poll</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="s2">"yes"</span><span class="p">),</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:post</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="kp">true</span> <span class="cp">%&gt;</span><span class="x"> |</span>
+<span class="x">  </span><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s2">"No"</span><span class="p">,</span> <span class="n">vote_poll_path</span><span class="p">(</span><span class="vi">@poll</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="s2">"no"</span><span class="p">),</span> <span class="nb">method</span><span class="p">:</span> <span class="ss">:post</span><span class="p">,</span> <span class="n">remote</span><span class="p">:</span> <span class="kp">true</span> <span class="cp">%&gt;</span><span class="x"></span>
+<span class="x">&lt;/p&gt;</span>
+</pre></div>
+
+<p>Finally, add a <code>:vote_polls</code> Redmine permission to the <code>:polls</code> project module 
+in <code>plugins/redmine_polls/init.rb</code>:</p>
+
+<div class="highlight"><pre>  <span class="n">project_module</span> <span class="ss">:polls</span> <span class="k">do</span>
+    <span class="c1"># ...</span>
+    <span class="n">permission</span> <span class="ss">:vote_polls</span><span class="p">,</span> <span class="n">polls</span><span class="p">:</span> <span class="o">[</span><span class="ss">:vote</span><span class="o">]</span>
+  <span class="k">end</span>
+</pre></div>
+
+<p>Start the rails server if you haven't already with <code>rails s</code>. Grant voting 
+access to whichever roles you'd like at 
+<a href="http://localhost:3000/roles/permissions">http://localhost:3000/roles/permissions</a>,
+create a project with the <code>:polls</code> module enabled, and start polling!</p>
+
+<p>This project rocks and uses MIT-LICENSE.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/xdissent">xdissent</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
